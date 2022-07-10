@@ -36,8 +36,10 @@
 #include "../elib/misc.h"
 #include "../elib/qstring.h"
 #include "../hal/hal_ml.h"
+#include "../hal/hal_opendir.h"
 #include "../hal/hal_platform.h"
 #include "../hal/hal_video.h"
+#include "posix_opendir.h"
 #include "posix_platform.h"
 
 using namespace std;
@@ -151,6 +153,9 @@ void POSIX_InitHAL(void)
    hal_platform.setIcon     = POSIX_SetIcon;
    hal_platform.fileOpen    = POSIX_FileOpen;
    hal_platform.fileExists  = POSIX_FileExists;
+   
+   // initialize opendir interface
+   POSIX_InitOpenDir();
 }
 
 #endif

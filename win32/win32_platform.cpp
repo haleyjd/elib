@@ -42,9 +42,12 @@
 #include "../elib/elib.h"
 #include "../elib/misc.h"
 #include "../hal/hal_ml.h"
+#include "../hal/hal_opendir.h"
 #include "../hal/hal_platform.h"
 #include "../hal/hal_video.h"
+#include "win32_opendir.h"
 #include "win32_platform.h"
+#include "win32_util.h"
 
 //
 // Display a debug message. For Windows, this will open a debug console
@@ -135,22 +138,13 @@ static void Win32_SetIcon()
 #endif
 }
 
-static std::wstring UTF8ToWStr(const char *instr)
-{
-    const int clen = int(std::strlen(instr));
-    const int size_needed = MultiByteToWideChar(CP_UTF8, 0, instr, clen, nullptr, 0);
-    std::wstring wStrTo(size_t(size_needed) + 1, '\0');
-    MultiByteToWideChar(CP_UTF8, 0, instr, clen, &wStrTo[0], size_needed);
-    return wStrTo;
-}
-
 //
 // Open a file with the input path being assumed to contain a UTF-8 encoded string
 //
 static FILE *Win32_FileOpen(const char *path, const char *mode)
 {
-    const std::wstring wpath { UTF8ToWStr(path) };
-    const std::wstring wmode { UTF8ToWStr(mode) };
+    const std::wstring wpath { Win32_UTF8ToWStr(path) };
+    const std::wstring wmode { Win32_UTF8ToWStr(mode) };
 
     return _wfopen(wpath.c_str(), wmode.c_str());
 }
@@ -161,7 +155,7 @@ static FILE *Win32_FileOpen(const char *path, const char *mode)
 static hal_bool Win32_FileExists(const char *path)
 {
     hal_bool res = HAL_FALSE;
-    const std::wstring wpath { UTF8ToWStr(path) };
+    const std::wstring wpath { Win32_UTF8ToWStr(path) };
 
     if(const DWORD attribs = GetFileAttributesW(wpath.c_str()); attribs != INVALID_FILE_ATTRIBUTES)
     {
@@ -183,6 +177,9 @@ void Win32_InitHAL()
     hal_platform.setIcon     = Win32_SetIcon;
     hal_platform.fileOpen    = Win32_FileOpen;
     hal_platform.fileExists  = Win32_FileExists;
+
+    // initialize opendir interface
+    Win32_InitOpenDir();
 }
 
 #endif
