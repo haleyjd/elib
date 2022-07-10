@@ -34,9 +34,40 @@
 #include <exception>
 #include "../elib/elib.h"
 #include "../elib/m_argv.h"
-#include "../econfig.h"
+#include "econfig.h"
 
 ELIB_MAIN_FN_DECL();
+
+#if defined(ELIB_WIN32_CONSOLE_PROGRAM)
+// === Win32 console app support ==============================================
+
+//
+// ELib main program for Win32 console apps
+//
+int main(int argc, const char *const *argv)
+{
+    try 
+    {
+        // initialize global command line state
+        EArgManager::GetGlobalArgs().setArgs(argc, argv);
+
+        // call application's main function
+        ELIB_MAIN_FN_CALL();
+    }
+    catch(const std::exception &ex)
+    {
+        std::fprintf(stderr, "\nException: %s\n", ex.what());
+    }
+    catch(...)
+    {
+        std::fprintf(stderr, "\nException: Unknown exception caught in main\n");
+    }
+
+    return 0;
+}
+
+#else
+// === Win32 windowed app support ==============================================
 
 //
 // Remove slash characters from escaped quotation marks
@@ -199,6 +230,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
     return 0;
 }
+
+#endif
 
 #endif
 
