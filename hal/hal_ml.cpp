@@ -26,8 +26,8 @@
   SOFTWARE.
 */
 
-#include "elib/elib.h"
-#include "elib/atexit.h"
+#include "../elib/elib.h"
+#include "../elib/atexit.h"
 #include "hal_ml.h"
 
 //=============================================================================

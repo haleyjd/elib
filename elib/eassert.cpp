@@ -27,7 +27,7 @@
 */
 
 #include "elib.h"
-#include "hal/hal_platform.h"
+#include "../hal/hal_platform.h"
 
 ENORETURN void E_Assert(const char *desc, const char *file, int line)
 {

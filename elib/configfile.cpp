@@ -29,7 +29,7 @@
 #include <map>
 
 #include "elib.h"
-#include "../econfig.h"
+#include "econfig.h"
 #include "../hal/hal_platform.h"
 #include "../hal/hal_ml.h"
 #include "atexit.h"

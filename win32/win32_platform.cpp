@@ -38,7 +38,7 @@
 // COUGAR_FIXME: icon
 //#include "../../vc2015/resource.h"
 
-#include "../econfig.h"
+#include "econfig.h"
 #include "../elib/elib.h"
 #include "../elib/misc.h"
 #include "../hal/hal_ml.h"
