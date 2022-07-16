@@ -37,7 +37,18 @@ public:
     void operator () (std::remove_extent_t<T> *ptr) const noexcept { efree(ptr); }
 };
 
+// EUniquePtr manages C-friendly allocations from elib through functions emalloc, ecalloc, erealloc, estrdup, etc
 template<typename T>
 using EUniquePtr = std::unique_ptr<T, EDeleter<T>>;
+
+class EFileDeleter final
+{
+public:
+    constexpr EFileDeleter() noexcept = default;
+    void operator () (std::FILE *ptr) const noexcept { std::fclose(ptr); }
+};
+
+// Auto-closing std::FILE handle
+using EAutoFile = std::unique_ptr<std::FILE, EFileDeleter>;
 
 // EOF
