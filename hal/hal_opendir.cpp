@@ -34,41 +34,41 @@
 //
 //=============================================================================
 
-static hal_dir_t *HAL_OpenDir(const char *path)
+static struct hal_dir_t *HAL_OpenDir(const char *path)
 {
     return nullptr;
 }
 
-static hal_direntry_t *HAL_ReadDir(hal_dir_t *)
+static struct hal_direntry_t *HAL_ReadDir(struct hal_dir_t *)
 {
     return nullptr;
 }
 
-static hal_bool HAL_CloseDir(hal_dir_t *)
+static hal_bool HAL_CloseDir(struct hal_dir_t *)
 {
     return HAL_FALSE;
 }
 
-static void HAL_RewindDir(hal_dir_t *)
+static void HAL_RewindDir(struct hal_dir_t *)
 {
 }
 
-static long HAL_TellDir(hal_dir_t *)
+static long HAL_TellDir(struct hal_dir_t *)
 {
     return -1;
 }
 
-static void HAL_SeekDir(hal_dir_t *, long lpos)
+static void HAL_SeekDir(struct hal_dir_t *, long lpos)
 {
 }
 
-static const char *HAL_GetEntryName(hal_direntry_t *)
+static const char *HAL_GetEntryName(struct hal_direntry_t *)
 {
     return "";
 }
 
 // global singleton
-hal_opendir_t hal_opendir =
+hal_directory_t hal_directory =
 {
     HAL_OpenDir,
     HAL_ReadDir,

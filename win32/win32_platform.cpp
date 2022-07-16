@@ -57,9 +57,11 @@ static void Win32_DebugMsg(const char *msg, ...)
 {
 #if defined(_DEBUG)
     va_list args;
-    static BOOL debugInit = FALSE;
     size_t len = std::strlen(msg);
     
+#if !defined(ELIB_WIN32_CONSOLE_PROGRAM)
+    // non-console programs need to open a debug console window
+    static BOOL debugInit = FALSE;
     if(!debugInit)
     {
         if(AllocConsole())
@@ -69,6 +71,7 @@ static void Win32_DebugMsg(const char *msg, ...)
         }
         debugInit = TRUE;
     }
+#endif
 
     va_start(args, msg);
     std::vprintf(msg, args);
@@ -167,16 +170,43 @@ static hal_bool Win32_FileExists(const char *path)
 }
 
 //
+// Check if a directory exists
+//
+static hal_bool Win32_DirectoryExists(const char *path)
+{
+    hal_bool res = estrempty(path) ? HAL_TRUE : HAL_FALSE; // empty is treated as current directory
+    if(res == HAL_FALSE)
+    {
+        const std::wstring wdir { Win32_UTF8ToWStr(path) };
+        const DWORD attribs = GetFileAttributesW(wdir.c_str());
+        res = (attribs != INVALID_FILE_ATTRIBUTES && (attribs & FILE_ATTRIBUTE_DIRECTORY) != 0) ? HAL_TRUE : HAL_FALSE;
+    }
+
+    return res;
+}
+
+//
+// Create a directory if it does not exist already
+//
+static hal_bool Win32_MakeDirectory(const char *path)
+{
+    const std::wstring wdir { Win32_UTF8ToWStr(path) };
+    return (CreateDirectoryW(wdir.c_str(), nullptr) == TRUE || GetLastError() == ERROR_ALREADY_EXISTS) ? HAL_TRUE : HAL_FALSE;
+}
+
+//
 // Populate the HAL platform interface with Win32 implementation function pointers
 //
 void Win32_InitHAL()
 {
-    hal_platform.debugMsg    = Win32_DebugMsg;
-    hal_platform.exitWithMsg = Win32_ExitWithMsg;
-    hal_platform.fatalError  = Win32_FatalError;
-    hal_platform.setIcon     = Win32_SetIcon;
-    hal_platform.fileOpen    = Win32_FileOpen;
-    hal_platform.fileExists  = Win32_FileExists;
+    hal_platform.debugMsg         = Win32_DebugMsg;
+    hal_platform.exitWithMsg      = Win32_ExitWithMsg;
+    hal_platform.fatalError       = Win32_FatalError;
+    hal_platform.setIcon          = Win32_SetIcon;
+    hal_platform.fileOpen         = Win32_FileOpen;
+    hal_platform.fileExists       = Win32_FileExists;
+    hal_platform.directoryExists  = Win32_DirectoryExists;
+    hal_platform.makeDirectory    = Win32_MakeDirectory;
 
     // initialize opendir interface
     Win32_InitOpenDir();

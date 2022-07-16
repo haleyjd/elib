@@ -32,6 +32,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "econfig.h"
 #include "../elib/elib.h"
 #include "../elib/misc.h"
 #include "../elib/qstring.h"
@@ -50,22 +51,22 @@ using namespace std;
 static void POSIX_DebugMsg(const char *msg, ...)
 {
 #ifdef _DEBUG
-   static FILE *error_log;
+    static FILE *error_log;
 
-   if(!error_log)
-   {
-      qstring fn(POSIX_GetWriteDirectory());
-      fn.pathConcatenate("output.txt");
-      error_log = fopen(fn.constPtr(), "w");
-   }
+    if(!error_log)
+    {
+        qstring fn(POSIX_GetWriteDirectory());
+        fn.pathConcatenate("output.txt");
+        error_log = fopen(fn.constPtr(), "w");
+    }
 
-   if(error_log)
-   {
-      va_list args;
-      va_start(args, msg);
-      vfprintf(error_log, msg, args);
-      va_end(args);      
-   }
+    if(error_log)
+    {
+        va_list args;
+        va_start(args, msg);
+        vfprintf(error_log, msg, args);
+        va_end(args);
+    }
 #endif
 }
 
@@ -74,21 +75,21 @@ static void POSIX_DebugMsg(const char *msg, ...)
 //
 static void POSIX_ExitWithMsg(const char *msg, ...)
 {
-   va_list args;
-   char buf[1024];
+    va_list args;
+    char buf[1024];
 
-   va_start(args, msg);
-   std::vsnprintf(buf, sizeof(buf), msg, args);
-   va_end(args);
+    va_start(args, msg);
+    std::vsnprintf(buf, sizeof(buf), msg, args);
+    va_end(args);
 
-   // try the media layer's method first; if it fails, use native
-   if(hal_medialayer.msgbox("Calico", buf, HAL_FALSE))
-   {
-      fputs(buf, stderr); // try stderr (may have a console or be redirected)
-      fputs("\n", stderr);
-   }
+    // try the media layer's method first; if it fails, use native
+    if(hal_medialayer.msgbox(ELIB_APP_NAME, buf, HAL_FALSE))
+    {
+        fputs(buf, stderr); // try stderr (may have a console or be redirected)
+        fputs("\n", stderr);
+    }
 
-   hal_medialayer.exit();
+    hal_medialayer.exit();
 }
 
 //
@@ -96,34 +97,36 @@ static void POSIX_ExitWithMsg(const char *msg, ...)
 //
 static void POSIX_FatalError(const char *msg, ...)
 {
-   va_list args;
-   char buf[1024];
+    va_list args;
+    char buf[1024];
 
-   va_start(args, msg);
-   std::vsnprintf(buf, sizeof(buf), msg, args);
-   va_end(args);
+    va_start(args, msg);
+    std::vsnprintf(buf, sizeof(buf), msg, args);
+    va_end(args);
 
-   // try the media layer's method first; if it fails, use native
-   if(hal_medialayer.msgbox("Calico", buf, HAL_TRUE))
-   {
-      fputs(buf, stderr); // try stderr (may have a console or be redirected)
-      fputs("\n", stderr);
-   }
+    // try the media layer's method first; if it fails, use native
+    if(hal_medialayer.msgbox(ELIB_APP_NAME, buf, HAL_TRUE))
+    {
+       fputs(buf, stderr); // try stderr (may have a console or be redirected)
+       fputs("\n", stderr);
+    }
 
-   hal_medialayer.error();
+    hal_medialayer.error();
 }
 
 //
 // Create a directory
 //
-static bool POSIX_CreateDirectory(const char *name)
+static bool POSIX_MakeDirectory(const char *name)
 {
-   return !mkdir(name, S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
+    qstring normpath { name };
+    normpath.normalizeSlashes();
+    return !mkdir(normpath.c_str(), S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
 }
 
 static void POSIX_SetIcon()
 {
-   // FIXME: Not implemented
+    // FIXME: Not implemented
 }
 
 static FILE *POSIX_FileOpen(const char *path, const char *mode)
@@ -137,9 +140,19 @@ static hal_bool POSIX_FileExists(const char *path)
     qstring normpath { path };
     normpath.normalizeSlashes();
 
-    if(!stat(normpath.constPtr(), &st) && !S_ISDIR(st.st_mode))
-        return HAL_TRUE;
-    return HAL_FALSE;
+    return (!stat(normpath.c_str(), &st) && !S_ISDIR(st.st_mode)) ? HAL_TRUE : HAL_FALSE;
+}
+
+//
+// Check if a directory exists
+//
+static hal_bool POSIX_DirectoryExists(const char *path)
+{
+    struct stat st;
+    qstring normpath { path };
+    normpath.normalizeSlashes();
+
+    return (!stat(normpath.c_str(), &st) && S_ISDIR(st.st_mode)) ? HAL_TRUE : HAL_FALSE;
 }
 
 //
@@ -147,15 +160,17 @@ static hal_bool POSIX_FileExists(const char *path)
 //
 void POSIX_InitHAL(void)
 {
-   hal_platform.debugMsg    = POSIX_DebugMsg;
-   hal_platform.exitWithMsg = POSIX_ExitWithMsg;
-   hal_platform.fatalError  = POSIX_FatalError;
-   hal_platform.setIcon     = POSIX_SetIcon;
-   hal_platform.fileOpen    = POSIX_FileOpen;
-   hal_platform.fileExists  = POSIX_FileExists;
-   
-   // initialize opendir interface
-   POSIX_InitOpenDir();
+    hal_platform.debugMsg         = POSIX_DebugMsg;
+    hal_platform.exitWithMsg      = POSIX_ExitWithMsg;
+    hal_platform.fatalError       = POSIX_FatalError;
+    hal_platform.setIcon          = POSIX_SetIcon;
+    hal_platform.fileOpen         = POSIX_FileOpen;
+    hal_platform.fileExists       = POSIX_FileExists;
+    hal_platform.directoryExists  = POSIX_DirectoryExists;
+    hal_platform.makeDirectory    = POSIX_MakeDirectory;
+
+    // initialize opendir interface
+    POSIX_InitOpenDir();
 }
 
 #endif

@@ -30,7 +30,7 @@
 
 #include "../elib/elib.h"
 #include "../elib/m_argv.h"
-#include "../econfig.h"
+#include "econfig.h"
 
 ELIB_MAIN_FN_DECL();
 

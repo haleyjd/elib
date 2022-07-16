@@ -45,12 +45,12 @@
 //
 //=============================================================================
 
-typedef struct hal_direntry_t
+struct hal_direntry_t
 {
-    char d_name[FILENAME_MAX]; // file name
-} hal_direntry_t;
+    std::string d_name; // file name
+};
 
-typedef struct hal_dir_t
+struct hal_dir_t
 {
     // disk transfer area for this dir
     struct _wfinddata64i32_t dd_dta;
@@ -70,12 +70,12 @@ typedef struct hal_dir_t
 
     // given path for dir with search pattern
     qstring dd_name;
-} hal_dir_t;
+};
 
 //
 // Open a directory into a hal_dir_t structure.
 //
-static hal_dir_t *Win32_OpenDir(const char *path)
+static struct hal_dir_t *Win32_OpenDir(const char *path)
 {
     if(estrempty(path))
     {
@@ -85,7 +85,7 @@ static hal_dir_t *Win32_OpenDir(const char *path)
 
     // Attempt to determine if the given path really is a directory.
     const std::wstring wpath { Win32_UTF8ToWStr(path) };
-    const unsigned int rc = GetFileAttributesW(wpath.data());
+    const unsigned int rc = GetFileAttributesW(wpath.c_str());
     if(rc == static_cast<unsigned int>(-1))
     {
         // Not found (ENOENT)
@@ -131,7 +131,7 @@ static hal_dir_t *Win32_OpenDir(const char *path)
 //
 // Read next directory entry.
 //
-static hal_direntry_t *Win32_ReadDir(hal_dir_t *dir)
+static struct hal_direntry_t *Win32_ReadDir(struct hal_dir_t *dir)
 {
     if(dir == nullptr)
         return nullptr;
@@ -146,7 +146,7 @@ static hal_direntry_t *Win32_ReadDir(hal_dir_t *dir)
     {
         // We haven't started the search yet, start it now.
         std::wstring wdd_name { Win32_UTF8ToWStr(dir->dd_name.c_str()) };
-        dir->dd_handle = _wfindfirst(wdd_name.data(), &dir->dd_dta);
+        dir->dd_handle = _wfindfirst(wdd_name.c_str(), &dir->dd_dta);
 
         if(dir->dd_handle == -1)
         {
@@ -179,8 +179,7 @@ static hal_direntry_t *Win32_ReadDir(hal_dir_t *dir)
     {
         // Successfully got an entry. Everything about the file is already
         // appropriately filled in except the length of the file name.
-        const std::string dd_dtaName { Win32_WideToStdString(dir->dd_dta.name) };
-        M_Strlcpy(dir->dd_dir.d_name, dd_dtaName.c_str(), sizeof(dir->dd_dir.d_name));
+        dir->dd_dir.d_name = Win32_WideToStdString(dir->dd_dta.name).c_str();
         return &dir->dd_dir;
     }
 
@@ -190,7 +189,7 @@ static hal_direntry_t *Win32_ReadDir(hal_dir_t *dir)
 //
 // Close and free the directory.
 //
-static hal_bool Win32_CloseDir(hal_dir_t *dir)
+static hal_bool Win32_CloseDir(struct hal_dir_t *dir)
 {
     if(dir == nullptr)
         return HAL_FALSE;
@@ -207,7 +206,7 @@ static hal_bool Win32_CloseDir(hal_dir_t *dir)
 //
 // Rewind directory structure to the beginning of the enumeration.
 //
-static void Win32_RewindDir(hal_dir_t *dir)
+static void Win32_RewindDir(struct hal_dir_t *dir)
 {
     if(dir == nullptr)
         return;
@@ -222,7 +221,7 @@ static void Win32_RewindDir(hal_dir_t *dir)
 //
 // Report position in the directory enumeration.
 //
-static long Win32_TellDir(hal_dir_t *dir)
+static long Win32_TellDir(struct hal_dir_t *dir)
 {
     return dir ? dir->dd_stat : -1;
 }
@@ -230,7 +229,7 @@ static long Win32_TellDir(hal_dir_t *dir)
 //
 // Seek to a specific position in the directory enumeration.
 //
-static void Win32_SeekDir(hal_dir_t *dir, long lpos)
+static void Win32_SeekDir(struct hal_dir_t *dir, long lpos)
 {
     if(dir == nullptr)
         return;
@@ -261,9 +260,9 @@ static void Win32_SeekDir(hal_dir_t *dir, long lpos)
 //
 // Get an entry name
 //
-static const char *Win32_GetEntryName(hal_direntry_t *ent)
+static const char *Win32_GetEntryName(struct hal_direntry_t *ent)
 {
-    return ent ? ent->d_name : "";
+    return ent ? ent->d_name.c_str() : "";
 }
 
 //
@@ -271,13 +270,13 @@ static const char *Win32_GetEntryName(hal_direntry_t *ent)
 //
 void Win32_InitOpenDir()
 {
-    hal_opendir.OpenDir      = Win32_OpenDir;
-    hal_opendir.ReadDir      = Win32_ReadDir;
-    hal_opendir.CloseDir     = Win32_CloseDir;
-    hal_opendir.RewindDir    = Win32_RewindDir;
-    hal_opendir.TellDir      = Win32_TellDir;
-    hal_opendir.SeekDir      = Win32_SeekDir;
-    hal_opendir.GetEntryName = Win32_GetEntryName;
+    hal_directory.openDir      = Win32_OpenDir;
+    hal_directory.readDir      = Win32_ReadDir;
+    hal_directory.closeDir     = Win32_CloseDir;
+    hal_directory.rewindDir    = Win32_RewindDir;
+    hal_directory.tellDir      = Win32_TellDir;
+    hal_directory.seekDir      = Win32_SeekDir;
+    hal_directory.getEntryName = Win32_GetEntryName;
 }
 
 #endif

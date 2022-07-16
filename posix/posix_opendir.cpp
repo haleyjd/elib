@@ -39,21 +39,21 @@
 //
 //=============================================================================
 
-typedef struct hal_direntry_t
+struct hal_direntry_t
 {
     struct dirent *m_pent = nullptr;
-} hal_direntry_t;
+};
 
-typedef struct hal_dir_t
+struct hal_dir_t
 {
     hal_direntry_t m_ent;
     DIR *m_dir = nullptr;
-} hal_dir_t;
+};
 
 //
 // Open a directory into a hal_dir_t structure.
 //
-static hal_dir_t *POSIX_OpenDir(const char *path)
+static struct hal_dir_t *POSIX_OpenDir(const char *path)
 {
     hal_dir_t *pRet = nullptr;
     if(DIR *const pDir = opendir(path); pDir != nullptr)
@@ -67,7 +67,7 @@ static hal_dir_t *POSIX_OpenDir(const char *path)
 //
 // Read next directory entry.
 //
-static hal_direntry_t *POSIX_ReadDir(hal_dir_t *dir)
+static struct hal_direntry_t *POSIX_ReadDir(struct hal_dir_t *dir)
 {
     if(dir == nullptr || dir->m_dir == nullptr)
         return nullptr;
@@ -79,7 +79,7 @@ static hal_direntry_t *POSIX_ReadDir(hal_dir_t *dir)
 //
 // Close and free the directory.
 //
-static hal_bool POSIX_CloseDir(hal_dir_t *dir)
+static hal_bool POSIX_CloseDir(struct hal_dir_t *dir)
 {
     if(dir == nullptr)
         return HAL_FALSE;
@@ -96,7 +96,7 @@ static hal_bool POSIX_CloseDir(hal_dir_t *dir)
 //
 // Rewind directory structure to the beginning of the enumeration.
 //
-static void POSIX_RewindDir(hal_dir_t *dir)
+static void POSIX_RewindDir(struct hal_dir_t *dir)
 {
     if(dir == nullptr || dir->m_dir == nullptr)
         return;
@@ -106,7 +106,7 @@ static void POSIX_RewindDir(hal_dir_t *dir)
 //
 // Report position in the directory enumeration.
 //
-static long POSIX_TellDir(hal_dir_t *dir)
+static long POSIX_TellDir(struct hal_dir_t *dir)
 {
     if(dir == nullptr || dir->m_dir == nullptr)
         return -1;
@@ -117,7 +117,7 @@ static long POSIX_TellDir(hal_dir_t *dir)
 //
 // Seek to a specific position in the directory enumeration.
 //
-static void POSIX_SeekDir(hal_dir_t *dir, long lpos)
+static void POSIX_SeekDir(struct hal_dir_t *dir, long lpos)
 {
     if(dir == nullptr || dir->m_dir == nullptr)
         return;
@@ -128,7 +128,7 @@ static void POSIX_SeekDir(hal_dir_t *dir, long lpos)
 //
 // Get an entry name
 //
-static const char *POSIX_GetEntryName(hal_direntry_t *ent)
+static const char *POSIX_GetEntryName(struct hal_direntry_t *ent)
 {
     return (ent && ent->m_pent) ? ent->m_pent->d_name : "";
 }
@@ -138,13 +138,13 @@ static const char *POSIX_GetEntryName(hal_direntry_t *ent)
 //
 void POSIX_InitOpenDir()
 {
-    hal_opendir.OpenDir      = POSIX_OpenDir;
-    hal_opendir.ReadDir      = POSIX_ReadDir;
-    hal_opendir.CloseDir     = POSIX_CloseDir;
-    hal_opendir.RewindDir    = POSIX_RewindDir;
-    hal_opendir.TellDir      = POSIX_TellDir;
-    hal_opendir.SeekDir      = POSIX_SeekDir;
-    hal_opendir.GetEntryName = POSIX_GetEntryName;
+    hal_directory.openDir      = POSIX_OpenDir;
+    hal_directory.readDir      = POSIX_ReadDir;
+    hal_directory.closeDir     = POSIX_CloseDir;
+    hal_directory.rewindDir    = POSIX_RewindDir;
+    hal_directory.tellDir      = POSIX_TellDir;
+    hal_directory.seekDir      = POSIX_SeekDir;
+    hal_directory.getEntryName = POSIX_GetEntryName;
 }
 
 #endif

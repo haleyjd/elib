@@ -39,6 +39,8 @@ typedef struct hal_platform_s
    void        (*setIcon)(void);
    FILE       *(*fileOpen)(const char *path, const char *mode);
    hal_bool    (*fileExists)(const char *path);
+   hal_bool    (*directoryExists)(const char *path);
+   hal_bool    (*makeDirectory)(const char *path);
 } hal_platform_t;
 
 #if defined(__cplusplus)

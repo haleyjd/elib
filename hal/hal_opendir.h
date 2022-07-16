@@ -31,27 +31,27 @@
 #include "hal_types.h"
 
 // hal_dir_t is an opaque type equivalent to POSIX DIR
-typedef struct hal_dir_t hal_dir_t;
+struct hal_dir_t;
 
-// hal_direntry_t is an opaque type equivalent to POSIX DIRENT
-typedef struct hal_direntry_t hal_direntry_t;
+// hal_direntry_t is an opaque type equivalent to POSIX dirent
+struct hal_direntry_t;
 
-typedef struct hal_opendir_s
+typedef struct hal_directory_s
 {
-    hal_dir_t      *(*OpenDir)(const char *path);
-    hal_direntry_t *(*ReadDir)(hal_dir_t *dir);
-    hal_bool        (*CloseDir)(hal_dir_t *dir);
-    void            (*RewindDir)(hal_dir_t *dir);
-    long            (*TellDir)(hal_dir_t *dir);
-    void            (*SeekDir)(hal_dir_t *dir, long lpos);
-    const char     *(*GetEntryName)(hal_direntry_t *ent);
-} hal_opendir_t;
+    struct hal_dir_t      *(*openDir)(const char *path);
+    struct hal_direntry_t *(*readDir)(struct hal_dir_t *dir);
+    hal_bool               (*closeDir)(struct hal_dir_t *dir);
+    void                   (*rewindDir)(struct hal_dir_t *dir);
+    long                   (*tellDir)(struct hal_dir_t *dir);
+    void                   (*seekDir)(struct hal_dir_t *dir, long lpos);
+    const char            *(*getEntryName)(struct hal_direntry_t *ent);
+} hal_directory_t;
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-extern hal_opendir_t hal_opendir;
+extern hal_directory_t hal_directory;
 
 #if defined(__cplusplus)
 }
