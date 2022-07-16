@@ -271,7 +271,7 @@ public:
     qstring &addDefaultExtension(const char *ext);
     qstring &removeFileSpec();
     qstring &stripExtension();
-    void     extractFileBase(qstring &dest);
+    qstring extractFileBase() const;
     
     // === strdup wrapper ===============================================================
 

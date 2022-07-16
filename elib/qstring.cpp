@@ -772,21 +772,20 @@ qstring &qstring::stripExtension()
 // This one is not limited to 8 character file names, and will include any
 // file extension, however, so it is not strictly equivalent.
 //
-void qstring::extractFileBase(qstring &dest)
+qstring qstring::extractFileBase() const
 {
-   const char *src = buffer + index - 1;
-   dest = "";
+    const char *src = buffer + index - 1;
 
-   // back up until a \ or the start
-   while(src != buffer && 
-      *(src - 1) != ':' &&
-      *(src - 1) != '\\' &&
-      *(src - 1) != '/')
-   {
-      --src;
-   }
+    // back up until a \ or the start
+    while(src != buffer && 
+          *(src - 1) != ':' &&
+          *(src - 1) != '\\' &&
+          *(src - 1) != '/')
+    {
+        --src;
+    }
 
-   dest = src;
+   return qstring(src);
 }
 
 //=============================================================================
