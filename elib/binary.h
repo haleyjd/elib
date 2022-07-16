@@ -53,7 +53,7 @@
 //
 // Read an int16 from the lump data, but do not increment the read pointer.
 //
-inline int16_t E_ReadBinaryWord(ebyte *data)
+inline int16_t E_ReadBinaryWord(const ebyte *data)
 {
    return eread16_le(data, int16_t);
 }
@@ -68,7 +68,7 @@ inline void E_WriteBinaryWord(ebyte *data, int16_t val)
 //
 // Reads an int16 from the lump data and increments the read pointer.
 //
-inline int16_t E_GetBinaryWord(ebyte **data)
+inline int16_t E_GetBinaryWord(const ebyte **data)
 {
    int16_t val = eread16_le(*data, int16_t);
    *data += 2;
@@ -79,7 +79,7 @@ inline int16_t E_GetBinaryWord(ebyte **data)
 //
 // Read a uint16 from the lump data, but do not increment the read pointer.
 //
-inline uint16_t E_ReadBinaryUWord(ebyte *data)
+inline uint16_t E_ReadBinaryUWord(const ebyte *data)
 {
    return eread16_le(data, uint16_t);
 }
@@ -87,7 +87,7 @@ inline uint16_t E_ReadBinaryUWord(ebyte *data)
 //
 // Reads a uint16 from the lump data and increments the read pointer.
 //
-inline uint16_t E_GetBinaryUWord(ebyte **data)
+inline uint16_t E_GetBinaryUWord(const ebyte **data)
 {
    uint16_t val = eread16_le(*data, uint16_t);
    *data += 2;
@@ -98,7 +98,7 @@ inline uint16_t E_GetBinaryUWord(ebyte **data)
 //
 // Reads an int32 from the lump data and increments the read pointer.
 //
-inline int32_t E_GetBinaryDWord(ebyte **data)
+inline int32_t E_GetBinaryDWord(const ebyte **data)
 {
    int32_t val = eread32_le(*data, int32_t);
    *data += 4;
@@ -109,7 +109,7 @@ inline int32_t E_GetBinaryDWord(ebyte **data)
 //
 // Reads an int32, big-endian, from the lump data and increments the read pointer.
 //
-inline int32_t E_GetBinaryDWordBE(ebyte **data)
+inline int32_t E_GetBinaryDWordBE(const ebyte **data)
 {
    int32_t val = eread32_be(*data, int32_t);
    *data += 4;
@@ -120,7 +120,7 @@ inline int32_t E_GetBinaryDWordBE(ebyte **data)
 //
 // Read a uint32 from the lump data, but do not increment the read pointer.
 //
-inline uint32_t E_ReadBinaryUDWord(ebyte *data)
+inline uint32_t E_ReadBinaryUDWord(const ebyte *data)
 {
    return eread32_le(data, uint32_t);
 }
@@ -128,7 +128,7 @@ inline uint32_t E_ReadBinaryUDWord(ebyte *data)
 //
 // Read a uint32, big-endian, from the lump data, but do not increment the read pointer.
 //
-inline uint32_t E_ReadBinaryUDWordBE(ebyte *data)
+inline uint32_t E_ReadBinaryUDWordBE(const ebyte *data)
 {
    return eread32_be(data, uint32_t);
 }
@@ -136,7 +136,7 @@ inline uint32_t E_ReadBinaryUDWordBE(ebyte *data)
 //
 // Reads a uint32 from the lump data and increments the read pointer.
 //
-inline uint32_t E_GetBinaryUDWord(ebyte **data)
+inline uint32_t E_GetBinaryUDWord(const ebyte **data)
 {
    uint32_t val = eread32_le(*data, uint32_t);
    *data += 4;
@@ -147,7 +147,7 @@ inline uint32_t E_GetBinaryUDWord(ebyte **data)
 //
 // Reads a uint32, big-endian, from the lump data and increments the read pointer.
 //
-inline uint32_t E_GetBinaryUDWordBE(ebyte **data)
+inline uint32_t E_GetBinaryUDWordBE(const ebyte **data)
 {
    uint32_t val = eread32_be(*data, uint32_t);
    *data += 4;
@@ -159,7 +159,7 @@ inline uint32_t E_GetBinaryUDWordBE(ebyte **data)
 // Reads a "len"-byte string from the lump data and writes it into the 
 // destination buffer. The read pointer is incremented by len bytes.
 //
-inline void E_GetBinaryString(ebyte **data, char *dest, int len)
+inline void E_GetBinaryString(const ebyte **data, char *dest, int len)
 {
    char *loc = (char *)(*data);
 
