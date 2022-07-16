@@ -97,6 +97,18 @@ size_t M_ReadFile(const char *name, ebyte **buffer)
 }
 
 //
+// Read in a file; C++ version using EUniquePtr for ownership management
+//
+size_t M_ReadFileUnique(const char *name, EUniquePtr<ebyte> &upbuffer)
+{
+    ebyte *pbuf = nullptr;
+    const size_t ret = M_ReadFile(name, &pbuf);
+    if(pbuf != nullptr)
+        upbuffer.reset(pbuf);
+    return ret;
+}
+
+//
 // Assume the contents of a file are a string, null-terminating the buffer
 // when reading it in.
 //

@@ -36,35 +36,69 @@ extern "C" {
 // File IO Utils
 //
 
+// Write a file from a data source
 int     M_WriteFile(const char *filename, const void *source, size_t length);
+// Get the length of a file
 long    M_FileLength(FILE *f);
+// Read in a file
 size_t  M_ReadFile(const char *name, ebyte **buffer);
+#if defined(__cplusplus)
+// Read in a file; C++ version using EUniquePtr for ownership management
+size_t  M_ReadFileUnique(const char *name, EUniquePtr<ebyte> &upbuffer);
+#endif
+// Assume the contents of a file are a string, null-terminating the buffer when reading it in.
 char   *M_LoadStringFromFile(const char *filename);
 
 //
 // C library polyfills
 //
 
+// Convert a string to uppercase in-place.
 char *M_Strupr(char *string);
+// Convert a string to lowercase in-place.
 char *M_Strlwr(char *string);
+// Itoa - integer to string with specifiable base
 char *M_Itoa(int value, char *string, int radix);
 
+// Find the first occurrence of find in s, ignore case.
 const char *M_StrCaseStr(const char *s, const char *find);
+// Version of M_StrCaseStr for mutable strings
 char       *M_StrCaseStrMutable(char *s, const char *find);
 
 //
 // BSD-like String Utilities
 //
 
+// Copy src to string dst of size siz.  At most siz-1 characters
+// will be copied.  Always NUL terminates (unless siz == 0).
+// Returns strlen(src); if retval >= siz, truncation occurred.
 size_t M_Strlcpy(char *dst, const char *src, size_t siz);
+
+// Appends src to string dst of size siz (unlike strncat, siz is the
+// full size of dst, not space left).  At most siz-1 characters
+// will be copied.  Always NUL terminates (unless siz == 0).
+// Returns strlen(src); if retval >= siz, truncation occurred.
 size_t M_Strlcat(char *dst, const char *src, size_t siz);
 
 //
 // Filename and Path Utils
 //
 
+// Normalizes slashes in a file path:
+// * Replaces \\ with / except in UNC paths
+// * Removes trailing slashes
+// * Deduplicates consecutive slashes, except at beginning of an UNC path
 void  M_NormalizeSlashes(char *str);
+
+// This routine takes any number of strings and a number of extra
+// characters, calculates their combined length, and calls ecalloc to create
+// a temporary buffer of that size. This is extremely useful for allocation of
+// file paths. The pointer returned in *str must be manually freed.
 int   M_StringAlloc(char **str, int numstrs, size_t extra, const char *str1, ...);
+
+// This routine performs safe, portable concatenation of a base file path
+// with another path component or file name. The returned string is ecalloc'd
+// and should be freed when it has exhausted its usefulness.
 char *M_SafeFilePath(const char *basepath, const char *newcomponent);
 
 #ifdef __cplusplus
