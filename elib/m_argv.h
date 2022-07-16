@@ -57,6 +57,12 @@ public:
     // program, and 0 otherwise.
     //
     int indexOf(const char *arg) const;
+
+    //
+    // Returns the index of the specified argument if it was passed to the
+    // program, starting from the given index. Returns 0 if not found.
+    //
+    int indexOf(const char *arg, int from) const;
     
     //
     // Returns true if the specified argument was passed to the program,

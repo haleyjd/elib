@@ -40,6 +40,17 @@ int EArgManager::indexOf(const char *arg) const
     return 0;
 }
 
+int EArgManager::indexOf(const char *arg, int from) const
+{
+    for(int i = from; i < m_argc; i++)
+    {
+        if(!std::strcmp(m_argv[i], arg))
+            return i;
+    }
+
+    return 0;
+}
+
 bool EArgManager::findArgument(const char *arg) const
 {
     return indexOf(arg) != 0;
