@@ -77,6 +77,17 @@ inline int16_t E_GetBinaryWord(const ebyte **data)
 }
 
 //
+// Reads an int16 from the lump data and increments the read pointer.
+//
+inline int16_t E_GetBinaryWordBE(const ebyte **data)
+{
+   const int16_t val = eread16_be(*data, int16_t);
+   *data += 2;
+
+   return val;
+}
+
+//
 // Read a uint16 from the lump data, but do not increment the read pointer.
 //
 inline uint16_t E_ReadBinaryUWord(const ebyte *data)
@@ -93,6 +104,14 @@ inline uint16_t E_GetBinaryUWord(const ebyte **data)
    *data += 2;
 
    return val;
+}
+
+//
+// Read a uint16, big endian, from the lump data, but do not increment the read pointer.
+//
+inline uint16_t E_ReadBinaryUWordBE(const ebyte *data)
+{
+   return eread16_be(data, uint16_t);
 }
 
 //
