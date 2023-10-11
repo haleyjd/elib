@@ -856,5 +856,53 @@ int qstring::printf(const char *fmt, ...)
     return res;
 }
 
+//
+// Create a new qstring instance with formatted contents
+//
+qstring qstring::VPrintf(const char *fmt, va_list args)
+{
+    va_list vaLength;
+    va_copy(vaLength, args);
+
+    // This returns the required length
+    int stringLength = std::vsnprintf(nullptr, 0, fmt, vaLength);
+    va_end(vaLength);
+
+    if(stringLength >= 0)
+    {
+        qstring ret { size_t(stringLength) + 1 };
+
+        const size_t bufferLength = size_t(stringLength + 1);
+
+        stringLength = std::vsnprintf(ret.buffer, bufferLength, fmt, args);
+        if(stringLength >= 0)
+        {
+            if(size_t(stringLength) >= bufferLength)
+            {
+                ret.buffer[bufferLength - 1] = '\0';
+            }
+            ret.index = size_t(stringLength);
+        }
+
+        return ret;
+    }
+    else
+        return qstring::emptystr;
+}
+
+//
+// Create a new qstring instance with formatted contents
+//
+qstring qstring::Printf(const char *fmt, ...)
+{
+    va_list va;
+    va_start(va, fmt);
+
+    qstring ret = VPrintf(fmt, va);
+
+    va_end(va);
+    return ret;
+}
+
 // EOF
 

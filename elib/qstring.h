@@ -342,6 +342,9 @@ public:
     int      vprintf(const char *fmt, va_list args);
     int      printf(const char *fmt, ...);
 
+    static qstring VPrintf(const char *fmt, va_list args);
+    static qstring Printf(const char *fmt, ...);
+
     // === Operators ====================================================================
 
     bool operator     == (const char *other)    const { return !std::strcmp(buffer, other); }
