@@ -148,6 +148,22 @@ inline int32_t E_GetBinaryDWordBE(const ebyte **data)
 }
 
 //
+// Reads an int32 from the lump data, but do not increment the read pointer.
+//
+inline int32_t E_ReadBinaryDWord(const ebyte *data)
+{
+   return eread32_le(data, int32_t);
+}
+
+//
+// Reads an int32, big-endian, from the lump data, but do not increment the read pointer.
+//
+inline int32_t E_ReadBinaryDWordBE(const ebyte *data)
+{
+   return eread32_be(data, int32_t);
+}
+
+//
 // Read a uint32 from the lump data, but do not increment the read pointer.
 //
 inline uint32_t E_ReadBinaryUDWord(const ebyte *data)
