@@ -58,13 +58,6 @@ inline int16_t E_ReadBinaryWord(const ebyte *data)
    return eread16_le(data, int16_t);
 }
 
-inline void E_WriteBinaryWord(ebyte *data, int16_t val)
-{
-   ebyte sgn = (val < 0) ? 0x80 : 0x00;
-   data[0]  = (ebyte)((val & 0x00ff) >> 0);
-   data[1]  = (ebyte)((val & 0xff00) >> 8) | sgn;
-}
-
 //
 // Reads an int16 from the lump data and increments the read pointer.
 //
@@ -207,12 +200,116 @@ inline uint32_t E_GetBinaryUDWordBE(const ebyte **data)
 //
 inline void E_GetBinaryString(const ebyte **data, char *dest, int len)
 {
-   char *loc = (char *)(*data);
+    char *loc = (char *)(*data);
 
-   std::memcpy(dest, loc, len);
+#if defined(__cplusplus)
+    std::memcpy(dest, loc, len);
+#else
+    memcpy(dest, loc, len);
+#endif
 
-   *data += len;
+    *data += len;
+}
+
+// ============================================================================
+//
+// Writing routines
+//
+// ============================================================================
+
+//
+// Write a binary unsigned word without advancing the write pointer
+//
+inline void E_WriteBinaryUWord(ebyte *data, uint16_t val)
+{
+    data[0]  = (ebyte)((val & 0x00ff) >> 0);
+    data[1]  = (ebyte)((val & 0xff00) >> 8);
+}
+
+//
+// Write a binary unsigned word, advancing the write pointer
+//
+inline void E_PutBinaryUWord(ebyte **data, uint16_t val)
+{
+    E_WriteBinaryUWord(*data, val);
+    *data += 2;
+}
+
+//
+// Write a binary signed word without advancing the write pointer
+//
+inline void E_WriteBinaryWord(ebyte *data, int16_t val)
+{
+    // cast to unsigned does what we want on any sane platform.
+    E_WriteBinaryUWord(data, (uint16_t)val);
+}
+
+//
+// Write a binary signed word, advancing the write pointer
+//
+inline void E_PutBinaryWord(ebyte **data, int16_t val)
+{
+    E_WriteBinaryUWord(*data, (uint16_t)val);
+    *data += 2;
+}
+
+//
+// Write a binary unsigned dword without advancing the write pointer
+//
+inline void E_WriteBinaryUDWord(ebyte *data, uint32_t val)
+{
+    data[0]  = (ebyte)((val & 0x000000ffu) >>  0);
+    data[1]  = (ebyte)((val & 0x0000ff00u) >>  8);
+    data[2]  = (ebyte)((val & 0x00ff0000u) >> 16);
+    data[3]  = (ebyte)((val & 0xff000000u) >> 24);
+}
+
+//
+// Write a binary unsigned dword, advancing the write pointer
+//
+inline void E_PutBinaryUDWord(ebyte **data, uint32_t val)
+{
+    E_WriteBinaryUDWord(*data, val);
+    *data += 4;
+}
+
+//
+// Write a binary signed dword without advancing the write pointer
+//
+inline void E_WriteBinaryDWord(ebyte *data, int32_t val)
+{
+    // cast to unsigned does what we want on any sane platform.
+    E_WriteBinaryUDWord(data, (uint32_t)val);
+}
+
+//
+// Write a binary signed dword, advancing the write pointer
+//
+inline void E_PutBinaryDWord(ebyte **data, int32_t val)
+{
+    E_WriteBinaryUDWord(*data, (uint32_t)val);
+    *data += 4;
+}
+
+//
+// Writes a "len"-byte string to output data without incrementing the output pointer.
+//
+inline void E_WriteBinaryString(ebyte *dest, const char *src, size_t len)
+{
+#if defined(__cplusplus)
+    std::memcpy(dest, src, len);
+#else
+    memcpy(dest, src, len);
+#endif
+}
+
+//
+// Writes a "len"-byte string to output data, incrementing the output pointer.
+//
+inline void E_PutBinaryString(ebyte **dest, const char *src, size_t len)
+{
+    E_WriteBinaryString(*dest, src, len);
+    *dest += len;
 }
 
 // EOF
-
