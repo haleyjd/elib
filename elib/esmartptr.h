@@ -29,6 +29,8 @@
 #include <memory>
 #include <utility>
 
+#include "../hal/hal_opendir.h"
+
 template<typename T>
 class EDeleter final
 {
@@ -50,5 +52,15 @@ public:
 
 // Auto-closing std::FILE handle
 using EAutoFile = std::unique_ptr<std::FILE, EFileDeleter>;
+
+class EDirectoryDeleter final
+{
+public:
+    constexpr EDirectoryDeleter() noexcept = default;
+    void operator () (struct hal_dir_t *dir) const noexcept { hal_directory.closeDir(dir); }
+};
+
+// Auto-closing HAL directory handle
+using EAutoDirectory = std::unique_ptr<struct hal_dir_t, EDirectoryDeleter>;
 
 // EOF
