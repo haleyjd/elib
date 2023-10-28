@@ -611,6 +611,7 @@ qstring qstring::substr(size_t start, size_t len) const
     if(l == 0 || start >= l)
         return qstring();
 
+    len = emin(len, l);
     if(start + len >= l)
         len = l - start;
 
