@@ -185,6 +185,7 @@ public:
 
     qstring &concat(const char *str);
     qstring &concat(const qstring &src) { return concat(src.buffer); }
+    qstring &concat(qstring &&src);
 
     qstring &insert(const char *insertstr, size_t pos);
     qstring &insert(const qstring &insertstr, size_t pos) { return insert(insertstr.buffer, pos); }
@@ -268,6 +269,7 @@ public:
     qstring &normalizeSlashes();
     qstring &pathConcatenate(const char *addend);
     qstring &pathConcatenate(const qstring &other) { return pathConcatenate(other.buffer); }
+    qstring &pathConcatenate(qstring &&other);
     qstring &addDefaultExtension(const char *ext);
     qstring &removeFileSpec();
     qstring &stripExtension();
@@ -351,14 +353,17 @@ public:
     bool operator     == (const qstring &other) const { return !std::strcmp(buffer, other.buffer); }
     bool operator     != (const char *other)    const { return std::strcmp(buffer, other) != 0; }
     bool operator     != (const qstring &other) const { return std::strcmp(buffer, other.buffer) != 0; }
-    qstring &operator  = (const qstring &other)       { return copy(other); }
-    qstring &operator  = (const char    *other)       { return copy(other); }
+    qstring &operator  = (const qstring &other)       { return buffer != other.buffer ? copy(other) : *this; }
+    qstring &operator  = (const char    *other)       { return buffer != other ? copy(other) : *this; }
     qstring operator  +  (const qstring &other) const { return qstring(*this).concat(other); }
+    qstring operator  +  (qstring      &&other) const { return qstring(*this).concat(std::move(other)); }
     qstring operator  +  (const char    *other) const { return qstring(*this).concat(other); }
     qstring &operator += (const qstring &other)       { return concat(other); }
+    qstring &operator += (qstring      &&other)       { return concat(std::move(other)); }
     qstring &operator += (const char    *other)       { return concat(other); }
     qstring &operator += (char ch)                    { return push(ch);      }
     qstring &operator << (const qstring &other)       { return concat(other); }
+    qstring &operator << (qstring      &&other)       { return concat(std::move(other)); }
     qstring &operator << (const char    *other)       { return concat(other); }
     qstring &operator << (char   ch)                  { return push(ch);      }
     qstring &operator << (int    i);
@@ -370,8 +375,11 @@ public:
 
     qstring &operator = (qstring &&other) noexcept
     {
-        freeBuffer();
-        moveFrom(std::move(other));
+        if(buffer != other.buffer)
+        {
+            freeBuffer();
+            moveFrom(std::move(other));
+        }
         return *this;
     }
 

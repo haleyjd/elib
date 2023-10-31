@@ -215,6 +215,31 @@ qstring &qstring::concat(const char *str)
 }
 
 //
+// Concatenate another qstring, where the operand is an r-value reference
+//
+qstring &qstring::concat(qstring &&src)
+{
+    // if we're empty, we can move from it unconditionally.
+    if(index == 0)
+        *this = std::move(src);
+    else
+    {
+        const size_t newsize = index + src.index + 1;
+
+        // if the other is large enough already, concat into src and then move from it.
+        if(buffer != src.buffer && size < newsize && src.size >= newsize)
+        {
+            src.insert(*this, 0);
+            *this = std::move(src);
+        }
+        else
+            concat(src); // normal const-ref concat is the only option
+    }
+
+    return *this;
+}
+
+//
 // Inserts a string at a given position in the qstring. If the
 // position is outside the range of the string, an error will occur.
 //
@@ -711,6 +736,23 @@ qstring &qstring::pathConcatenate(const char *addend)
       *this += '/';
 
    *this += addend;
+   normalizeSlashes();
+
+   return *this;
+}
+
+//
+// Concatenate a assuming the qstring's current contents are a file
+// path. Slashes will be normalized. R-value reference version.
+//
+qstring &qstring::pathConcatenate(qstring &&other)
+{
+   // Only add a slash if this is not the initial path component.
+   if(index > 0)
+      *this += '/';
+
+   // move-concat
+   *this += std::move(other);
    normalizeSlashes();
 
    return *this;
